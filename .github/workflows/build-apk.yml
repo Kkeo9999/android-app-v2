@@ -4,8 +4,11 @@ name: Build My Money Reset APK
 'on':
   workflow_dispatch:
   push:
-    paths:
-      - '.github/workflows/build-apk.yml'
+    branches:
+      - main
+
+permissions:
+  contents: read
 
 jobs:
   build:
@@ -24,17 +27,21 @@ jobs:
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v4
         with:
-          gradle-version: '8.7'
+          gradle-version: '8.9'
 
-      - name: Extract Android project
-        run: unzip -q MyMoneyResetAndroid_Project.zip -d extracted
-
-      - name: Build APK
-        working-directory: extracted/MyMoneyResetAndroid
-        run: gradle assembleDebug
+      - name: Build Android APK
+        run: |
+          if [ ! -d "MyMoneyResetAndroid" ]; then
+            echo "ERROR: Missing MyMoneyResetAndroid project folder"
+            exit 1
+          fi
+          cd MyMoneyResetAndroid
+          gradle assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: MyMoneyReset-APK
-          path: extracted/MyMoneyResetAndroid/app/build/outputs/apk/debug/*.apk
+          path: MyMoneyResetAndroid/app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
+          
