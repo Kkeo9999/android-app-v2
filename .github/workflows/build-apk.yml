@@ -19,7 +19,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up Java
-        uses: actions/setup-java@v4
+        uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -29,19 +29,29 @@ jobs:
         with:
           gradle-version: '8.9'
 
-      - name: Build Android APK
+      - name: Extract Android project ZIP
         run: |
-          if [ ! -d "MyMoneyResetAndroid" ]; then
-            echo "ERROR: Missing MyMoneyResetAndroid project folder"
+          if [ ! -f "MyMoneyResetAndroid_Project.zip" ]; then
+            echo "ERROR: ZIP file not found in repository root"
+            ls -la
             exit 1
           fi
-          cd MyMoneyResetAndroid
+          unzip -q MyMoneyResetAndroid_Project.zip -d extracted
+          if [ ! -d "extracted/MyMoneyResetAndroid" ]; then
+            echo "ERROR: Android project folder not found inside ZIP"
+            find extracted -maxdepth 3 -type d
+            exit 1
+          fi
+
+      - name: Build Android APK
+        run: |
+          cd extracted/MyMoneyResetAndroid
           gradle assembleDebug
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: MyMoneyReset-APK
-          path: MyMoneyResetAndroid/app/build/outputs/apk/debug/*.apk
+          path: extracted/MyMoneyResetAndroid/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error
           
