@@ -1,0 +1,40 @@
+
+name: Build My Money Reset APK
+
+'on':
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/build-apk.yml'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.7'
+
+      - name: Extract Android project
+        run: unzip -q MyMoneyResetAndroid_Project.zip -d extracted
+
+      - name: Build APK
+        working-directory: extracted/MyMoneyResetAndroid
+        run: gradle assembleDebug
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: MyMoneyReset-APK
+          path: extracted/MyMoneyResetAndroid/app/build/outputs/apk/debug/*.apk
