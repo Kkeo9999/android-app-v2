@@ -31,12 +31,11 @@ jobs:
 
       - name: Extract Android project ZIP
         run: |
-          if [ ! -f "MyMoneyResetAndroid_Project.zip" ]; then
+          if [ ! -f "MyMoneyResetAndroid_Project_Updated.zip" ]; then
             echo "ERROR: ZIP file not found in repository root"
             ls -la
             exit 1
-          fi
-          unzip -q MyMoneyResetAndroid_Project.zip -d extracted
+          unzip -q MyMoneyResetAndroid_Project_Updated.zip -d extracted
           if [ ! -d "extracted/MyMoneyResetAndroid" ]; then
             echo "ERROR: Android project folder not found inside ZIP"
             find extracted -maxdepth 3 -type d
